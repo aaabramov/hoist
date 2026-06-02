@@ -444,6 +444,13 @@ bool hasExternalScreen() {
 }
 
 void applyScreenAutoDisable() {
+    applyScreenAutoDisableForExternal(hasExternalScreen());
+}
+
+// Apply the auto-disable state machine for a given external-screen presence.
+// Split out from applyScreenAutoDisable() so the transitions are unit-testable
+// without real displays. `external` is ignored when the option is off.
+void applyScreenAutoDisableForExternal(bool external) {
     if (!disableWhenNoExternalScreen) {
         // Option off: undo any auto-disable we previously applied.
         if (autoDisabledForScreen) {
@@ -454,7 +461,6 @@ void applyScreenAutoDisable() {
         return;
     }
 
-    bool external = hasExternalScreen();
     if (!external && !autoDisabledForScreen && delayCount) {
         // No external screen and Hoist is currently enabled -> disable like the icon toggle.
         savedDelayCount = delayCount;

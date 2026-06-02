@@ -248,6 +248,7 @@ void findDesktopOrigin();
 NSScreen * findScreen(CGPoint point);
 bool hasExternalScreen();
 void applyScreenAutoDisable();
+void applyScreenAutoDisableForExternal(bool external);
 bool is_desktop_window(AXUIElementRef _window);
 bool is_full_screen(AXUIElementRef _window);
 bool is_main_window(AXUIElementRef _app, AXUIElementRef _window, bool chrome_app);
