@@ -20,6 +20,7 @@ This builds both the CLI binary and `Hoist.app`, then installs `Hoist.app` to `/
 | Command | Description |
 |---------|-------------|
 | `make` | Build both CLI binary and .app bundle |
+| `make test` | Build and run the headless unit-test suite |
 | `make clean` | Remove binaries, object files, and .app directories |
 | `make install` | Install Hoist.app to `/Applications` |
 | `make build` | Clean build with experimental flags |
@@ -50,3 +51,15 @@ After building, you get two binaries:
 
 - **`Hoist`** — Command line version, accepts parameters directly
 - **`Hoist.app`** — Menu bar app with GUI configuration
+
+## Running Tests
+
+```bash
+make test
+```
+
+This compiles a small, dependency-free, headless test binary (`hoist_tests`) from
+the pure-logic sources and the suite under `tests/`, then runs it. It exits
+non-zero if any test fails. The suite covers config parsing/validation, CLI
+override precedence, and bundle-id (`is_pwa`) classification — no GUI session or
+Accessibility permission required, so it also runs in CI on every pull request.

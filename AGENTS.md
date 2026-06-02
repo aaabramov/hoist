@@ -10,6 +10,7 @@ Hoist is a macOS utility that automatically raises and focuses windows on mouse 
 
 ```bash
 make            # Build both CLI binary and .app bundle (default target: all)
+make test       # Build and run the headless unit-test suite (tests/)
 make clean      # Remove binaries, object files, and .app directories
 make install    # Install Hoist.app to /Applications
 make build      # Clean build with experimental flags (EXPERIMENTAL_FOCUS_FIRST, OLD_ACTIVATION_METHOD)
@@ -32,6 +33,7 @@ The codebase is split into these files, all sharing `Hoist.h`:
 - **`HoistConfig.mm`** — `ConfigClass`: CLI args and JSON config file parsing (`~/.config/hoist/config.json`)
 - **`HoistUI.mm`** — `PreferencesWindowController` + `StatusBarController`: menu bar icon, context menu, preferences panel, live config persistence
 - **`HoistMain.mm`** — `spaceChanged()`, `appActivated()`, `onTick()` polling loop, `eventTapHandler()`, `main()`
+- **`tests/`** — Headless unit tests (`make test`). A dependency-free assertion harness (`test_harness.h` + `test_main.mm`) plus `test_config.mm` (config parsing/validation/CLI overrides) and `test_helpers.mm` (`is_pwa`). `test_stubs.mm` supplies link stubs for GUI/main symbols so only pure-logic translation units (`HoistGlobals`, `HoistConfig`, `HoistHelpers`) are linked — no GUI session, Accessibility permission, or private frameworks required. Window/screen/event-tap logic depends on a live GUI and is out of unit-test scope.
 
 ## Key Compilation Flags
 
