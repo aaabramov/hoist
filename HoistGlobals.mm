@@ -99,6 +99,9 @@ int pollMillis = 0;
 int disableKey = 0;
 int scaleDurationMs = 600;
 bool showIcon = true;
+bool disableWhenNoExternalScreen = false;
+bool autoDisabledForScreen = false;
+int savedDelayCount = 0;
 
 // ---- Config key constants ----
 
@@ -120,16 +123,17 @@ const NSString *kPollMillis = @"pollMillis";
 const NSString *kDisableKey = @"disableKey";
 const NSString *kScaleDuration = @"scaleDuration";
 const NSString *kShowIcon = @"showIcon";
+const NSString *kDisableWhenNoExternalScreen = @"disableWhenNoExternalScreen";
 #ifdef FOCUS_FIRST
 const NSString *kFocusDelay = @"focusDelay";
 NSArray *parametersDictionary = @[kDelay, kWarpX, kWarpY, kScale, kVerbose, kAltTaskSwitcher,
     kFocusDelay, kRequireMouseStop, kIgnoreSpaceChanged, kInvertDisableKey, kInvertIgnoreApps,
     kIgnoreApps, kIgnoreTitles, kStayFocusedBundleIds, kDisableKey, kMouseDelta, kPollMillis,
-    kScaleDuration, kShowIcon];
+    kScaleDuration, kShowIcon, kDisableWhenNoExternalScreen];
 #else
 NSArray *parametersDictionary = @[kDelay, kWarpX, kWarpY, kScale, kVerbose, kAltTaskSwitcher,
     kRequireMouseStop, kIgnoreSpaceChanged, kInvertDisableKey, kInvertIgnoreApps, kIgnoreApps,
     kIgnoreTitles, kStayFocusedBundleIds, kDisableKey, kMouseDelta, kPollMillis, kScaleDuration,
-    kShowIcon];
+    kShowIcon, kDisableWhenNoExternalScreen];
 #endif
 NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];

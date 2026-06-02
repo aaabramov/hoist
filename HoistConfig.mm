@@ -36,14 +36,7 @@
     if (argc > 1) {
         NSDictionary *arguments = [[NSUserDefaults standardUserDefaults]
             volatileDomainForName: NSArgumentDomain];
-
-        for (id key in parametersDictionary) {
-            id arg = arguments[key];
-            if (arg != NULL) {
-                NSLog(@"CLI override: %@ = %@", key, arg);
-                parameters[key] = arg;
-            }
-        }
+        [self applyCLIOverrides: arguments];
     }
     NSLog(@"Config result: delay=%@, warpX=%@, warpY=%@, scale=%@, scaleDuration=%@",
         parameters[kDelay], parameters[kWarpX], parameters[kWarpY],
@@ -66,26 +59,44 @@
             return;
         }
 
-        for (id key in parametersDictionary) {
-            id value = json[key];
-            if (value != nil) {
-                if ([value isKindOfClass: [NSArray class]]) {
-                    parameters[key] = [value componentsJoinedByString: @","];
-                } else if ([value isKindOfClass: [NSNumber class]]) {
-                    // NSNumber can be bool, int, or float
-                    if (strcmp([value objCType], @encode(BOOL)) == 0 ||
-                        strcmp([value objCType], @encode(char)) == 0) {
-                        parameters[key] = [value boolValue] ? @"true" : @"false";
-                    } else {
-                        parameters[key] = [value stringValue];
-                    }
+        [self applyConfigDictionary: json];
+    }
+    return;
+}
+
+// Coerce a parsed JSON dictionary into the string-typed `parameters` map.
+// Only keys present in parametersDictionary are considered.
+- (void) applyConfigDictionary:(NSDictionary *) json {
+    for (id key in parametersDictionary) {
+        id value = json[key];
+        if (value != nil) {
+            if ([value isKindOfClass: [NSArray class]]) {
+                parameters[key] = [value componentsJoinedByString: @","];
+            } else if ([value isKindOfClass: [NSNumber class]]) {
+                // NSNumber can be bool, int, or float
+                if (strcmp([value objCType], @encode(BOOL)) == 0 ||
+                    strcmp([value objCType], @encode(char)) == 0) {
+                    parameters[key] = [value boolValue] ? @"true" : @"false";
                 } else {
-                    parameters[key] = [NSString stringWithFormat: @"%@", value];
+                    parameters[key] = [value stringValue];
                 }
+            } else {
+                parameters[key] = [NSString stringWithFormat: @"%@", value];
             }
         }
     }
-    return;
+}
+
+// Apply CLI-argument overrides (NSArgumentDomain) on top of file/default values.
+// Only keys present in parametersDictionary are considered.
+- (void) applyCLIOverrides:(NSDictionary *) arguments {
+    for (id key in parametersDictionary) {
+        id arg = arguments[key];
+        if (arg != NULL) {
+            NSLog(@"CLI override: %@ = %@", key, arg);
+            parameters[key] = arg;
+        }
+    }
 }
 
 - (void) validateParameters {
@@ -114,15 +125,9 @@
 #endif
     return;
 }
-+ (void) saveConfig {
-    NSString *configDir = [NSString stringWithFormat:@"%@/.config/hoist", NSHomeDirectory()];
-    NSString *configPath = [NSString stringWithFormat:@"%@/config.json", configDir];
-
-    NSFileManager *fm = [NSFileManager defaultManager];
-    if (![fm fileExistsAtPath:configDir]) {
-        [fm createDirectoryAtPath:configDir withIntermediateDirectories:YES attributes:nil error:nil];
-    }
-
+// Build the JSON-serializable config dictionary from the current global state.
+// Separated from saveConfig so the serialization logic is testable without I/O.
++ (NSMutableDictionary *) buildConfigDictionary {
     NSMutableDictionary *config = [[NSMutableDictionary alloc] init];
     config[@"delay"] = @(menuDelayCount ? menuDelayCount : savedDelayCount);
     config[@"warpX"] = @(warpX);
@@ -151,8 +156,23 @@
         config[@"ignoreTitles"] = [ignoreTitlesStr componentsSeparatedByString:@","];
     }
     config[@"showIcon"] = @(showIcon);
+    config[@"disableWhenNoExternalScreen"] = @(disableWhenNoExternalScreen);
     if (mouseDelta > 0) { config[@"mouseDelta"] = @(mouseDelta); }
     if (verbose) { config[@"verbose"] = @YES; }
+
+    return config;
+}
+
++ (void) saveConfig {
+    NSString *configDir = [NSString stringWithFormat:@"%@/.config/hoist", NSHomeDirectory()];
+    NSString *configPath = [NSString stringWithFormat:@"%@/config.json", configDir];
+
+    NSFileManager *fm = [NSFileManager defaultManager];
+    if (![fm fileExistsAtPath:configDir]) {
+        [fm createDirectoryAtPath:configDir withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+
+    NSMutableDictionary *config = [self buildConfigDictionary];
 
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:config
         options:NSJSONWritingPrettyPrinted | NSJSONWritingSortedKeys error:nil];

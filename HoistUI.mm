@@ -22,8 +22,6 @@
 
 //------------------------------------------status bar controller--------------------------------------------
 
-int savedDelayCount = 0;
-
 StatusBarController *statusBarController = nil;
 
 //---------------------------------------preferences window controller---------------------------------------
@@ -194,6 +192,12 @@ StatusBarController *statusBarController = nil;
     _showIconCheckbox.state = showIcon ? NSControlStateValueOn : NSControlStateValueOff;
     [stack addArrangedSubview:_showIconCheckbox];
 
+    // Disable Without External Display checkbox
+    _autoDisableScreenCheckbox = [NSButton checkboxWithTitle:@"Disable when no external display is connected" target:self
+        action:@selector(autoDisableScreenChanged:)];
+    _autoDisableScreenCheckbox.state = disableWhenNoExternalScreen ? NSControlStateValueOn : NSControlStateValueOff;
+    [stack addArrangedSubview:_autoDisableScreenCheckbox];
+
     // Open Config Folder button
     NSButton *openConfigButton = [NSButton buttonWithTitle:@"Open Config Folder" target:self
         action:@selector(openConfigFolder:)];
@@ -254,6 +258,7 @@ StatusBarController *statusBarController = nil;
     }
 
     _showIconCheckbox.state = showIcon ? NSControlStateValueOn : NSControlStateValueOff;
+    _autoDisableScreenCheckbox.state = disableWhenNoExternalScreen ? NSControlStateValueOn : NSControlStateValueOff;
 
     [NSApp activateIgnoringOtherApps:YES];
     [_panel makeKeyAndOrderFront:nil];
@@ -350,6 +355,12 @@ StatusBarController *statusBarController = nil;
         }
     }
     showIcon = (sender.state == NSControlStateValueOn);
+    [statusBarController saveConfig];
+}
+
+- (void)autoDisableScreenChanged:(NSButton *)sender {
+    disableWhenNoExternalScreen = (sender.state == NSControlStateValueOn);
+    applyScreenAutoDisable();
     [statusBarController saveConfig];
 }
 
@@ -488,6 +499,12 @@ StatusBarController *statusBarController = nil;
     altTsItem.state = altTaskSwitcher ? NSControlStateValueOn : NSControlStateValueOff;
     [menu addItem:altTsItem];
 
+    NSMenuItem *autoDisableScreenItem = [[NSMenuItem alloc] initWithTitle:@"Disable Without External Display"
+        action:@selector(toggleDisableWhenNoExternalScreen:) keyEquivalent:@""];
+    autoDisableScreenItem.target = self;
+    autoDisableScreenItem.state = disableWhenNoExternalScreen ? NSControlStateValueOn : NSControlStateValueOff;
+    [menu addItem:autoDisableScreenItem];
+
     // Launch at Login
     if (@available(macOS 13.0, *)) {
         NSMenuItem *loginItem = [[NSMenuItem alloc] initWithTitle:@"Launch at Login"
@@ -539,6 +556,9 @@ StatusBarController *statusBarController = nil;
     } else {
         delayCount = savedDelayCount ? savedDelayCount : 1;
     }
+    // Manual toggle takes over: surrender auto-disable ownership so a later
+    // display reconnect won't override the user's explicit choice.
+    autoDisabledForScreen = false;
     [self updateIconState];
     [self saveConfig];
 }
@@ -585,6 +605,12 @@ StatusBarController *statusBarController = nil;
 
 - (void) toggleAltTaskSwitcher:(id)sender {
     altTaskSwitcher = !altTaskSwitcher;
+    [self saveConfig];
+}
+
+- (void) toggleDisableWhenNoExternalScreen:(id)sender {
+    disableWhenNoExternalScreen = !disableWhenNoExternalScreen;
+    applyScreenAutoDisable(); // applies immediate effect and updates the icon if needed
     [self saveConfig];
 }
 

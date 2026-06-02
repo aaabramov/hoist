@@ -135,6 +135,8 @@ extern int pollMillis;
 extern int disableKey;
 extern int scaleDurationMs;
 extern bool showIcon;
+extern bool disableWhenNoExternalScreen;
+extern bool autoDisabledForScreen;
 
 // ---- Config key constants ----
 
@@ -156,6 +158,7 @@ extern const NSString *kPollMillis;
 extern const NSString *kDisableKey;
 extern const NSString *kScaleDuration;
 extern const NSString *kShowIcon;
+extern const NSString *kDisableWhenNoExternalScreen;
 #ifdef FOCUS_FIRST
 extern const NSString *kFocusDelay;
 #endif
@@ -185,7 +188,10 @@ extern MDWorkspaceWatcher * workspaceWatcher;
 - (NSString *) getFilePath:(NSString *) filename;
 - (void) readConfig:(int) argc;
 - (void) readHiddenConfig;
+- (void) applyConfigDictionary:(NSDictionary *) json;
+- (void) applyCLIOverrides:(NSDictionary *) arguments;
 - (void) validateParameters;
++ (NSMutableDictionary *) buildConfigDictionary;
 + (void) saveConfig;
 @end
 
@@ -206,6 +212,7 @@ extern MDWorkspaceWatcher * workspaceWatcher;
 @property (strong, nonatomic) NSTextField *ignoreTitlesField;
 @property (strong, nonatomic) NSButton *launchAtLoginCheckbox;
 @property (strong, nonatomic) NSButton *showIconCheckbox;
+@property (strong, nonatomic) NSButton *autoDisableScreenCheckbox;
 + (instancetype)shared;
 - (void)showWindow;
 - (NSString *)ignoreAppsString;
@@ -239,6 +246,9 @@ bool contained_within(AXUIElementRef _window1, AXUIElementRef _window2);
 void findDockApplication();
 void findDesktopOrigin();
 NSScreen * findScreen(CGPoint point);
+bool hasExternalScreen();
+void applyScreenAutoDisable();
+void applyScreenAutoDisableForExternal(bool external);
 bool is_desktop_window(AXUIElementRef _window);
 bool is_full_screen(AXUIElementRef _window);
 bool is_main_window(AXUIElementRef _app, AXUIElementRef _window, bool chrome_app);

@@ -452,6 +452,8 @@ int main(int argc, const char * argv[]) {
         if (parameters[kShowIcon]) {
             showIcon = [parameters[kShowIcon] boolValue];
         }
+        // No nil-guard needed: defaults to false and [nil boolValue] is also false.
+        disableWhenNoExternalScreen = [parameters[kDisableWhenNoExternalScreen] boolValue];
 
         printf("\nv%s by aaabramov(c) 2026, usage:\n\nHoist\n", HOIST_VERSION);
         printf("  -pollMillis <20, 30, 40, 50, ...>\n");
@@ -499,6 +501,7 @@ int main(int argc, const char * argv[]) {
         printf("  * ignoreSpaceChanged: %s\n", ignoreSpaceChanged ? "true" : "false");
         printf("  * invertDisableKey: %s\n", invertDisableKey ? "true" : "false");
         printf("  * invertIgnoreApps: %s\n", invertIgnoreApps ? "true" : "false");
+        printf("  * disableWhenNoExternalScreen: %s\n", disableWhenNoExternalScreen ? "true" : "false");
 
         NSMutableArray * ignoreA;
         if (parameters[kIgnoreApps]) {
@@ -605,6 +608,7 @@ int main(int argc, const char * argv[]) {
         if (showIcon) {
             statusBarController = [[StatusBarController alloc] init];
         }
+        applyScreenAutoDisable();
         [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
         [[NSApplication sharedApplication] run];
     }

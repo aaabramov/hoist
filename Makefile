@@ -13,13 +13,25 @@ ifeq ($(SKYLIGHT_AVAILABLE), 1)
     FRAMEWORKS += -F /System/Library/PrivateFrameworks -framework SkyLight
 endif
 
-.PHONY: all clean install build dev run debug update
+.PHONY: all clean install build dev run debug update test
 
 all: Hoist Hoist.app
 
 clean:
-	rm -f Hoist HoistDev *.o
+	rm -f Hoist HoistDev *.o hoist_tests
 	rm -rf Hoist.app HoistDev.app
+
+# ---- Unit tests ----
+# Compiles the pure-logic production sources (no GUI / no main()) together with
+# the test sources into a standalone, headless test binary. Uses the default
+# CXXFLAGS (no experimental flags) so symbols match a stock build.
+TEST_BIN = hoist_tests
+TEST_SRCS = tests/test_main.mm tests/test_config.mm tests/test_helpers.mm tests/test_screen.mm tests/test_stubs.mm
+TEST_PROD_SRCS = HoistGlobals.mm HoistConfig.mm HoistHelpers.mm
+
+test:
+	g++ $(CXXFLAGS) -o $(TEST_BIN) $(TEST_PROD_SRCS) $(TEST_SRCS) $(FRAMEWORKS)
+	./$(TEST_BIN)
 
 install: Hoist.app
 	rm -rf /Applications/Hoist.app
