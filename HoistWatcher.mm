@@ -34,6 +34,11 @@ MDWorkspaceWatcher * workspaceWatcher = NULL;
             selector: @selector(spaceChanged:)
             name: NSWorkspaceActiveSpaceDidChangeNotification
             object: nil];
+        [[NSNotificationCenter defaultCenter]
+            addObserver: self
+            selector: @selector(screenParametersChanged:)
+            name: NSApplicationDidChangeScreenParametersNotification
+            object: nil];
         if (warpMouse) {
             [center
                 addObserver: self
@@ -60,11 +65,17 @@ MDWorkspaceWatcher * workspaceWatcher = NULL;
 
 - (void)dealloc {
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver: self];
+    [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
 - (void)spaceChanged:(NSNotification *)notification {
     if (verbose) { NSLog(@"Space changed"); }
     spaceChanged();
+}
+
+- (void)screenParametersChanged:(NSNotification *)notification {
+    if (verbose) { NSLog(@"Screen parameters changed"); }
+    applyScreenAutoDisable();
 }
 
 - (void)appActivated:(NSNotification *)notification {
