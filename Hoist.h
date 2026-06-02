@@ -31,7 +31,12 @@
 
 // ---- Constants ----
 
-#define HOIST_VERSION "5.6"
+// Injected by the Makefile (-DHOIST_VERSION) from the build's VERSION, so the
+// CLI banner and the .app bundle version share a single source of truth (git
+// tags). The fallback only applies to ad-hoc compiles that don't pass the flag.
+#ifndef HOIST_VERSION
+#define HOIST_VERSION "0.0"
+#endif
 #define STACK_THRESHOLD 20
 
 #ifdef EXPERIMENTAL_FOCUS_FIRST
