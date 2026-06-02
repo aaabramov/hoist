@@ -115,6 +115,7 @@ Location: `~/.config/hoist/config.json`
 | `requireMouseStop` | `true` | Require the mouse to stop moving before raise/focus. |
 | `ignoreSpaceChanged` | `false` | Do not immediately raise/focus after a space (desktop) change. |
 | `altTaskSwitcher` | `false` | Set to `true` if you use a third-party task switcher (e.g., AltTab). |
+| `disableWhenNoExternalScreen` | `false` | Automatically disable raise/focus when no external display is connected (e.g. laptop on its built-in screen only). Restores when an external display is reconnected. Clamshell mode (lid closed + one external monitor) stays enabled. |
 | `disableKey` | `control` | Hold this key to temporarily disable Hoist. Options: `control`, `option`, `disabled`. |
 | `invertDisableKey` | `false` | Inverts the disable key behavior (Hoist only active while key is held). |
 | `verbose` | `false` | Log events to the terminal. |
