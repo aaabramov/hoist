@@ -488,6 +488,12 @@ StatusBarController *statusBarController = nil;
     altTsItem.state = altTaskSwitcher ? NSControlStateValueOn : NSControlStateValueOff;
     [menu addItem:altTsItem];
 
+    NSMenuItem *autoDisableScreenItem = [[NSMenuItem alloc] initWithTitle:@"Disable Without External Display"
+        action:@selector(toggleDisableWhenNoExternalScreen:) keyEquivalent:@""];
+    autoDisableScreenItem.target = self;
+    autoDisableScreenItem.state = disableWhenNoExternalScreen ? NSControlStateValueOn : NSControlStateValueOff;
+    [menu addItem:autoDisableScreenItem];
+
     // Launch at Login
     if (@available(macOS 13.0, *)) {
         NSMenuItem *loginItem = [[NSMenuItem alloc] initWithTitle:@"Launch at Login"
@@ -585,6 +591,12 @@ StatusBarController *statusBarController = nil;
 
 - (void) toggleAltTaskSwitcher:(id)sender {
     altTaskSwitcher = !altTaskSwitcher;
+    [self saveConfig];
+}
+
+- (void) toggleDisableWhenNoExternalScreen:(id)sender {
+    disableWhenNoExternalScreen = !disableWhenNoExternalScreen;
+    applyScreenAutoDisable(); // applies immediate effect and updates the icon if needed
     [self saveConfig];
 }
 
