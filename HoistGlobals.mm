@@ -101,6 +101,7 @@ int scaleDurationMs = 600;
 bool showIcon = true;
 bool disableWhenNoExternalScreen = false;
 bool autoDisabledForScreen = false;
+int savedDelayCount = 0;
 
 // ---- Config key constants ----
 

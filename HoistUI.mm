@@ -22,8 +22,6 @@
 
 //------------------------------------------status bar controller--------------------------------------------
 
-int savedDelayCount = 0;
-
 StatusBarController *statusBarController = nil;
 
 //---------------------------------------preferences window controller---------------------------------------

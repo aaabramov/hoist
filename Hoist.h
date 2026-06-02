@@ -188,7 +188,10 @@ extern MDWorkspaceWatcher * workspaceWatcher;
 - (NSString *) getFilePath:(NSString *) filename;
 - (void) readConfig:(int) argc;
 - (void) readHiddenConfig;
+- (void) applyConfigDictionary:(NSDictionary *) json;
+- (void) applyCLIOverrides:(NSDictionary *) arguments;
 - (void) validateParameters;
++ (NSMutableDictionary *) buildConfigDictionary;
 + (void) saveConfig;
 @end
 
