@@ -26,7 +26,7 @@ clean:
 # the test sources into a standalone, headless test binary. Uses the default
 # CXXFLAGS (no experimental flags) so symbols match a stock build.
 TEST_BIN = hoist_tests
-TEST_SRCS = tests/test_main.mm tests/test_config.mm tests/test_helpers.mm tests/test_stubs.mm
+TEST_SRCS = tests/test_main.mm tests/test_config.mm tests/test_helpers.mm tests/test_screen.mm tests/test_stubs.mm
 TEST_PROD_SRCS = HoistGlobals.mm HoistConfig.mm HoistHelpers.mm
 
 test:

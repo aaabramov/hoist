@@ -44,11 +44,13 @@ int hoist_test_summary(void) {
 
 extern void run_config_tests(void);
 extern void run_helper_tests(void);
+extern void run_screen_tests(void);
 
 int main(int argc, const char *argv[]) {
     @autoreleasepool {
         run_config_tests();
         run_helper_tests();
+        run_screen_tests();
         return hoist_test_summary();
     }
 }
