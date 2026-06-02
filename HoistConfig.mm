@@ -151,6 +151,7 @@
         config[@"ignoreTitles"] = [ignoreTitlesStr componentsSeparatedByString:@","];
     }
     config[@"showIcon"] = @(showIcon);
+    config[@"disableWhenNoExternalScreen"] = @(disableWhenNoExternalScreen);
     if (mouseDelta > 0) { config[@"mouseDelta"] = @(mouseDelta); }
     if (verbose) { config[@"verbose"] = @YES; }
 

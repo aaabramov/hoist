@@ -434,6 +434,43 @@ NSScreen * findScreen(CGPoint point) {
     return NULL;
 }
 
+bool hasExternalScreen() {
+    for (NSScreen * screen in [NSScreen screens]) {
+        CGDirectDisplayID did =
+            (CGDirectDisplayID) [screen.deviceDescription[@"NSScreenNumber"] unsignedIntValue];
+        if (!CGDisplayIsBuiltin(did)) { return true; }
+    }
+    return false;
+}
+
+void applyScreenAutoDisable() {
+    if (!disableWhenNoExternalScreen) {
+        // Option off: undo any auto-disable we previously applied.
+        if (autoDisabledForScreen) {
+            delayCount = savedDelayCount ? savedDelayCount : 1;
+            autoDisabledForScreen = false;
+            if (statusBarController) { [statusBarController updateIconState]; }
+        }
+        return;
+    }
+
+    bool external = hasExternalScreen();
+    if (!external && !autoDisabledForScreen && delayCount) {
+        // No external screen and Hoist is currently enabled -> disable like the icon toggle.
+        savedDelayCount = delayCount;
+        delayCount = 0;
+        autoDisabledForScreen = true;
+        if (verbose) { NSLog(@"No external screen: auto-disabling"); }
+        if (statusBarController) { [statusBarController updateIconState]; }
+    } else if (external && autoDisabledForScreen) {
+        // External display reconnected -> restore.
+        delayCount = savedDelayCount ? savedDelayCount : 1;
+        autoDisabledForScreen = false;
+        if (verbose) { NSLog(@"External screen connected: restoring"); }
+        if (statusBarController) { [statusBarController updateIconState]; }
+    }
+}
+
 bool is_desktop_window(AXUIElementRef _window) {
     bool desktop_window = false;
     AXValueRef _pos = NULL;

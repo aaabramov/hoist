@@ -135,6 +135,8 @@ extern int pollMillis;
 extern int disableKey;
 extern int scaleDurationMs;
 extern bool showIcon;
+extern bool disableWhenNoExternalScreen;
+extern bool autoDisabledForScreen;
 
 // ---- Config key constants ----
 
@@ -156,6 +158,7 @@ extern const NSString *kPollMillis;
 extern const NSString *kDisableKey;
 extern const NSString *kScaleDuration;
 extern const NSString *kShowIcon;
+extern const NSString *kDisableWhenNoExternalScreen;
 #ifdef FOCUS_FIRST
 extern const NSString *kFocusDelay;
 #endif
@@ -239,6 +242,8 @@ bool contained_within(AXUIElementRef _window1, AXUIElementRef _window2);
 void findDockApplication();
 void findDesktopOrigin();
 NSScreen * findScreen(CGPoint point);
+bool hasExternalScreen();
+void applyScreenAutoDisable();
 bool is_desktop_window(AXUIElementRef _window);
 bool is_full_screen(AXUIElementRef _window);
 bool is_main_window(AXUIElementRef _app, AXUIElementRef _window, bool chrome_app);
