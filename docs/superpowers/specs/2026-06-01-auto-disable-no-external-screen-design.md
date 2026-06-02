@@ -143,9 +143,11 @@ Key decisions encoded here:
 
 - **Already off, then unplug:** `&& delayCount` guard skips it; on replug Hoist is not
   force-enabled.
-- **Manual toggle while auto-disabled:** allowed; the next display-configuration change
-  reconciles state. This is best-effort and acceptable for the "same as the icon"
-  model.
+- **Manual toggle while auto-disabled:** the menu-bar icon toggle (`toggleEnabled:`)
+  clears `autoDisabledForScreen`, so a manual click surrenders auto-ownership — a later
+  display reconnect will not override the user's explicit choice. (Changing the delay via
+  the Delay submenu/slider does not clear the flag; that path keeps the best-effort
+  behavior, which is acceptable for the "same as the icon" model.)
 - **`showIcon` false:** icon updates are guarded; the disable/enable still takes effect.
 - **Clamshell:** single external display → `hasExternalScreen()` returns true → enabled.
 

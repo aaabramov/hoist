@@ -558,6 +558,9 @@ StatusBarController *statusBarController = nil;
     } else {
         delayCount = savedDelayCount ? savedDelayCount : 1;
     }
+    // Manual toggle takes over: surrender auto-disable ownership so a later
+    // display reconnect won't override the user's explicit choice.
+    autoDisabledForScreen = false;
     [self updateIconState];
     [self saveConfig];
 }
