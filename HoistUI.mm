@@ -194,6 +194,12 @@ StatusBarController *statusBarController = nil;
     _showIconCheckbox.state = showIcon ? NSControlStateValueOn : NSControlStateValueOff;
     [stack addArrangedSubview:_showIconCheckbox];
 
+    // Disable Without External Display checkbox
+    _autoDisableScreenCheckbox = [NSButton checkboxWithTitle:@"Disable when no external display is connected" target:self
+        action:@selector(autoDisableScreenChanged:)];
+    _autoDisableScreenCheckbox.state = disableWhenNoExternalScreen ? NSControlStateValueOn : NSControlStateValueOff;
+    [stack addArrangedSubview:_autoDisableScreenCheckbox];
+
     // Open Config Folder button
     NSButton *openConfigButton = [NSButton buttonWithTitle:@"Open Config Folder" target:self
         action:@selector(openConfigFolder:)];
@@ -254,6 +260,7 @@ StatusBarController *statusBarController = nil;
     }
 
     _showIconCheckbox.state = showIcon ? NSControlStateValueOn : NSControlStateValueOff;
+    _autoDisableScreenCheckbox.state = disableWhenNoExternalScreen ? NSControlStateValueOn : NSControlStateValueOff;
 
     [NSApp activateIgnoringOtherApps:YES];
     [_panel makeKeyAndOrderFront:nil];
@@ -350,6 +357,12 @@ StatusBarController *statusBarController = nil;
         }
     }
     showIcon = (sender.state == NSControlStateValueOn);
+    [statusBarController saveConfig];
+}
+
+- (void)autoDisableScreenChanged:(NSButton *)sender {
+    disableWhenNoExternalScreen = (sender.state == NSControlStateValueOn);
+    applyScreenAutoDisable();
     [statusBarController saveConfig];
 }
 

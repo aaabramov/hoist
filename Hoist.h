@@ -209,6 +209,7 @@ extern MDWorkspaceWatcher * workspaceWatcher;
 @property (strong, nonatomic) NSTextField *ignoreTitlesField;
 @property (strong, nonatomic) NSButton *launchAtLoginCheckbox;
 @property (strong, nonatomic) NSButton *showIconCheckbox;
+@property (strong, nonatomic) NSButton *autoDisableScreenCheckbox;
 + (instancetype)shared;
 - (void)showWindow;
 - (NSString *)ignoreAppsString;
