@@ -389,7 +389,9 @@ StatusBarController *statusBarController = nil;
 
 //--------------------------------------status bar controller impl-------------------------------------------
 
-@implementation StatusBarController
+@implementation StatusBarController {
+    NSTimer *_accessibilityTimer;
+}
 
 - (instancetype) init {
     self = [super init];
@@ -405,6 +407,12 @@ StatusBarController *statusBarController = nil;
         _statusItem.button.toolTip = @"Hoist";
         [self buildMenu];
         [self updateIconState];
+
+        // Poll Accessibility trust so the icon/menu can warn when permission is
+        // missing, and auto-recover (within ~2s) once the user grants it.
+        [self refreshAccessibilityState];
+        _accessibilityTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+            target:self selector:@selector(refreshAccessibilityState) userInfo:nil repeats:YES];
 
         // Left click = toggle, right click = menu
         _statusItem.button.action = @selector(statusItemClicked:);
@@ -437,6 +445,22 @@ StatusBarController *statusBarController = nil;
 
 - (void) menuNeedsUpdate:(NSMenu *)menu {
     [menu removeAllItems];
+
+    // Accessibility warning (only when untrusted). Surfaces the failure that
+    // the OS prompt hides after an upgrade invalidates a stale TCC grant.
+    if (!accessibilityTrusted) {
+        NSMenuItem *warnItem = [[NSMenuItem alloc] initWithTitle:@"⚠ Accessibility permission needed"
+            action:nil keyEquivalent:@""];
+        warnItem.enabled = NO;
+        [menu addItem:warnItem];
+
+        NSMenuItem *fixItem = [[NSMenuItem alloc] initWithTitle:@"Fix Accessibility..."
+            action:@selector(openAccessibilitySettings:) keyEquivalent:@""];
+        fixItem.target = self;
+        [menu addItem:fixItem];
+
+        [menu addItem:[NSMenuItem separatorItem]];
+    }
 
     // Delay submenu
     NSMenu *delayMenu = [[NSMenu alloc] init];
@@ -533,6 +557,22 @@ StatusBarController *statusBarController = nil;
 }
 
 - (void) updateIconState {
+    // Missing Accessibility permission takes visual priority: nothing works
+    // without it, so warn regardless of the enabled/disabled state.
+    if (!accessibilityTrusted) {
+        if (@available(macOS 11.0, *)) {
+            NSImage *img = [NSImage imageWithSystemSymbolName:@"exclamationmark.triangle.fill"
+                accessibilityDescription:@"Hoist needs Accessibility permission"];
+            NSImageSymbolConfiguration *config = [NSImageSymbolConfiguration
+                configurationWithPaletteColors:@[[NSColor systemYellowColor]]];
+            _statusItem.button.image = [img imageWithSymbolConfiguration:config];
+        } else {
+            _statusItem.button.title = @"⚠";
+        }
+        _statusItem.button.toolTip = @"Hoist — Accessibility permission needed";
+        return;
+    }
+
     if (@available(macOS 11.0, *)) {
         NSImage *img = [NSImage imageWithSystemSymbolName:@"cursorarrow.rays"
             accessibilityDescription:@"Hoist"];
@@ -544,6 +584,16 @@ StatusBarController *statusBarController = nil;
         _statusItem.button.image = img;
     } else {
         _statusItem.button.title = delayCount ? @"AR" : @"ar";
+    }
+    _statusItem.button.toolTip = @"Hoist";
+}
+
+// Query AX trust (no prompt) and refresh the indicator only on change.
+- (void) refreshAccessibilityState {
+    bool trusted = AXIsProcessTrusted();
+    if (trusted != accessibilityTrusted) {
+        accessibilityTrusted = trusted;
+        [self updateIconState];
     }
 }
 
@@ -591,6 +641,12 @@ StatusBarController *statusBarController = nil;
 
 - (void) showPreferences:(id)sender {
     [[PreferencesWindowController shared] showWindow];
+}
+
+- (void) openAccessibilitySettings:(id)sender {
+    NSURL *url = [NSURL URLWithString:
+        @"x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"];
+    [[NSWorkspace sharedWorkspace] openURL:url];
 }
 
 - (void) toggleRequireMouseStop:(id)sender {

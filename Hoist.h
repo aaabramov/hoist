@@ -142,6 +142,10 @@ extern int scaleDurationMs;
 extern bool showIcon;
 extern bool disableWhenNoExternalScreen;
 extern bool autoDisabledForScreen;
+// Whether the process currently holds Accessibility (AX) trust. Polled by the
+// status bar controller so the menu bar can warn when permission is missing
+// (e.g. after an upgrade invalidates a stale TCC grant). See HoistUI.mm.
+extern bool accessibilityTrusted;
 
 // ---- Config key constants ----
 
@@ -228,6 +232,7 @@ extern MDWorkspaceWatcher * workspaceWatcher;
 @property (strong, nonatomic) NSMenu *menu;
 - (void) saveConfig;
 - (void) updateIconState;
+- (void) refreshAccessibilityState;
 @end
 
 extern StatusBarController *statusBarController;
