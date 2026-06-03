@@ -101,6 +101,7 @@ int scaleDurationMs = 600;
 bool showIcon = true;
 bool disableWhenNoExternalScreen = false;
 bool autoDisabledForScreen = false;
+bool accessibilityTrusted = true; // optimistic; corrected by the first AX poll
 int savedDelayCount = 0;
 
 // ---- Config key constants ----
